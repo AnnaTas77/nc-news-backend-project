@@ -12,6 +12,17 @@ afterAll(() => {
     db.end();
 });
 
+describe("All paths which do not exist", () => {
+    test("404: should return error 'Not found' when the path does not exist", () => {
+        return request(app)
+            .get("/api/banana")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not found");
+            });
+    });
+});
+
 describe("GET /api/topics", () => {
     test("200: should respond with an array of all topic objects", () => {
         return request(app)
@@ -96,6 +107,32 @@ describe("GET /api/articles/:article_id", () => {
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe("Not found");
+            });
+    });
+});
+
+describe("GET /api/articles", () => {
+    test("200: should respond with an articles array containing all article objects", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                const articlesArray = body.articles;
+
+                expect(articlesArray).toBeInstanceOf(Array);
+                expect(articlesArray).toHaveLength(13);
+                expect(articlesArray).toBeSortedBy("created_at", { descending: true });
+
+                articlesArray.forEach((article) => {
+                    expect(article).toHaveProperty("author"), expect.any(String);
+                    expect(article).toHaveProperty("title"), expect.any(String);
+                    expect(article).toHaveProperty("article_id"), expect.any(Number);
+                    expect(article).toHaveProperty("topic"), expect.any(String);
+                    expect(article).toHaveProperty("created_at"), expect.any(String);
+                    expect(article).toHaveProperty("votes"), expect.any(Number);
+                    expect(article).toHaveProperty("article_img_url"), expect.any(String);
+                    expect(article).toHaveProperty("comment_count"), expect.any(Number);
+                });
             });
     });
 });

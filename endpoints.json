@@ -17,12 +17,13 @@
         "exampleResponse": {
             "articles": [
                 {
-                    "title": "Seafood substitutions are increasing",
-                    "topic": "cooking",
                     "author": "weegembump",
-                    "body": "Text from the article..",
+                    "title": "Seafood substitutions are increasing",
+                    "article_id": 7,
+                    "topic": "cooking",
                     "created_at": "2018-05-30T15:59:13.341Z",
                     "votes": 0,
+                    "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
                     "comment_count": 6
                 }
             ]
