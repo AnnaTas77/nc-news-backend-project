@@ -30,3 +30,28 @@ describe("GET /api/topics", () => {
             });
     });
 });
+
+describe("GET /api", () => {
+    test("200: should respond with an object describing all the available endpoints on the API", () => {
+        return request(app)
+            .get("/api")
+            .expect(200)
+            .then((data) => {
+                const { endpoints } = data.body;
+
+                expect(endpoints).toMatchObject({
+                    "GET /api": expect.any(Object),
+                    "GET /api/topics": expect.any(Object),
+                    "GET /api/articles": expect.any(Object),
+                });
+
+                for (const key in endpoints) {
+                    expect(endpoints[key]).toMatchObject({
+                        description: expect.any(String),
+                        queries: expect.any(Array),
+                        exampleResponse: expect.any(Object),
+                    });
+                }
+            });
+    });
+});
