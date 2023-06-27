@@ -136,3 +136,45 @@ describe("GET /api/articles", () => {
             });
     });
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+    test("200: should respond with an array of comments for a given article_id with the most recent comments first (date in descending order)", () => {
+        return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({ body }) => {
+                const commentsArray = body.comments;
+
+                expect(commentsArray).toBeInstanceOf(Array);
+                expect(commentsArray).toHaveLength(11);
+                expect(commentsArray).toBeSortedBy("created_at", { descending: true });
+
+                commentsArray.forEach((comment) => {
+                    expect(comment).toHaveProperty("comment_id"), expect.any(Number);
+                    expect(comment).toHaveProperty("votes"), expect.any(String);
+                    expect(comment).toHaveProperty("created_at"), expect.any(String);
+                    expect(comment).toHaveProperty("author"), expect.any(String);
+                    expect(comment).toHaveProperty("body"), expect.any(String);
+                    expect(comment).toHaveProperty("article_id"), expect.any(Number);
+                });
+            });
+    });
+
+    test("400: should respond with 'Bad request' when article_id is an invalid type", () => {
+        return request(app)
+            .get("/api/articles/banana/comments")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad request");
+            });
+    });
+
+    test("404: should respond with 'Not found' when the article_id is of valid type, but does not exist in the database", () => {
+        return request(app)
+            .get("/api/articles/7777/comments")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not found");
+            });
+    });
+});
