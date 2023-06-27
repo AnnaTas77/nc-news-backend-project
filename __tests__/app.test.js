@@ -112,7 +112,7 @@ describe("GET /api/articles/:article_id", () => {
 });
 
 describe("GET /api/articles", () => {
-    test("200: should respond with an articles array containing all article objects", () => {
+    test("200: should respond with an articles array containing all article objects sorted by date in descending order", () => {
         return request(app)
             .get("/api/articles")
             .expect(200)
