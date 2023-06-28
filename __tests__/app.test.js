@@ -155,7 +155,7 @@ describe("GET /api/articles/:article_id/comments", () => {
                     expect(comment).toHaveProperty("created_at"), expect.any(String);
                     expect(comment).toHaveProperty("author"), expect.any(String);
                     expect(comment).toHaveProperty("body"), expect.any(String);
-                    expect(comment).toHaveProperty("article_id"), expect.any(Number);
+                    expect(comment).toHaveProperty("article_id"), expect(comment.article_id).toBe(1);
                 });
             });
     });
