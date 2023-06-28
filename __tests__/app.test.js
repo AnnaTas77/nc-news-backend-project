@@ -196,3 +196,59 @@ describe("GET /api/articles/:article_id/comments", () => {
             });
     });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+    test("201: should add a comment for a specific article and should respond with an object representing the posted comment", () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "The owls are not what they seem.",
+        };
+        return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                const { postedComment } = body;
+                // console.log("postedComment =>>", postedComment);
+
+                expect(postedComment).toBeInstanceOf(Object);
+
+                expect(postedComment).toMatchObject({
+                    comment_id: expect.any(Number),
+                    body: expect.any(String),
+                    article_id: expect.any(Number),
+                    author: expect.any(String),
+                    votes: expect.any(Number),
+                    created_at: expect.any(String),
+                });
+            });
+    });
+
+    test("400: should respond with 'Bad request' when trying to post a comment with missing fields (malformed request)", () => {
+        const newComment = {
+            username: "butter_bridge",
+        };
+
+        return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad request");
+            });
+    });
+
+    test("400: should respond with 'Bad request' when article_id is an invalid type", () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "The owls are not what they seem.",
+        };
+        return request(app)
+            .post("/api/articles/banana/comments")
+            .send(newComment)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad request");
+            });
+    });
+});
