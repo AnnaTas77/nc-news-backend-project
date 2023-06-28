@@ -7,6 +7,8 @@ exports.checkArticleIdExists = (articleId) => {
     return db.query(format(queryString, articleId)).then(({ rows }) => {
         if (!rows.length) {
             return Promise.reject({ status: 404, msg: "Not found" });
+        } else {
+            return true;
         }
     });
 };

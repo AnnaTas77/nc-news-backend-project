@@ -4,16 +4,17 @@ const { selectAllCommentsForArticle } = require("../models/comments.models");
 exports.getAllCommentsForArticle = (req, res, next) => {
     const { article_id } = req.params;
 
-    const promises = [selectAllCommentsForArticle(article_id)];
-
-    if (article_id) {
-        promises.push(checkArticleIdExists(article_id));
-    }
-
-    Promise.all(promises)
-        .then((resolvedPromises) => {
-            const comments = resolvedPromises[0];
-            res.status(200).send({ comments });
+    checkArticleIdExists(article_id)
+        .then((exists) => {
+            if (exists) {
+                selectAllCommentsForArticle(article_id)
+                    .then((comments) => {
+                        res.status(200).send({ comments });
+                    })
+                    .catch((err) => {
+                        next(err);
+                    });
+            }
         })
         .catch((err) => {
             next(err);

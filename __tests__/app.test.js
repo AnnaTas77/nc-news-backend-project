@@ -177,4 +177,22 @@ describe("GET /api/articles/:article_id/comments", () => {
                 expect(body.msg).toBe("Not found");
             });
     });
+
+    test("404: should respond with 'Not found' when there is no article_id provided", () => {
+        return request(app)
+            .get("/api/articles//comments")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not found");
+            });
+    });
+
+    test("200: should respond with 'No content' when article_id is valid and it exists, but there are no comments on that article yet ", () => {
+        return request(app)
+            .get("/api/articles/4/comments")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.msg).toBe("No content");
+            });
+    });
 });
