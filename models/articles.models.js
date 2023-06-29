@@ -33,3 +33,11 @@ exports.selectAllArticles = () => {
         return rows;
     });
 };
+
+exports.updateArticle = (articleId, updateVoteValueBy) => {
+    const queryString = `UPDATE articles SET votes=votes+%L WHERE article_id=%L RETURNING *;`;
+
+    return db.query(format(queryString, updateVoteValueBy, articleId)).then(({ rows }) => {
+        return rows[0];
+    });
+};

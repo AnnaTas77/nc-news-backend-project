@@ -308,3 +308,88 @@ describe("POST /api/articles/:article_id/comments", () => {
             });
     });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+    test("200: should update the number of votes for a specific article and should respond with the updated article", () => {
+        const updateVote = { inc_votes: 100 };
+        return request(app)
+            .patch("/api/articles/3")
+            .send(updateVote)
+            .expect(200)
+            .then(({ body }) => {
+                const { updatedArticle } = body;
+
+                expect(updatedArticle).toBeInstanceOf(Object);
+
+                expect(updatedArticle).toMatchObject({
+                    article_id: 3,
+                    title: "Eight pug gifs that remind me of mitch",
+                    topic: "mitch",
+                    author: "icellusedkars",
+                    body: "some gifs",
+                    created_at: expect.any(String),
+                    votes: 100,
+                    article_img_url:
+                        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                });
+            });
+    });
+
+    test("200: if the 'updateVote' object contains unnecessary properties, they should be ignored", () => {
+        const updateVote = { inc_votes: 100, nonsense: "banana" };
+        return request(app)
+            .patch("/api/articles/3")
+            .send(updateVote)
+            .expect(200)
+            .then(({ body }) => {
+                const { updatedArticle } = body;
+
+                expect(updatedArticle).toBeInstanceOf(Object);
+                expect(updatedArticle).not.toHaveProperty("nonsense");
+
+                expect(updatedArticle).toMatchObject({
+                    article_id: 3,
+                    title: "Eight pug gifs that remind me of mitch",
+                    topic: "mitch",
+                    author: "icellusedkars",
+                    body: "some gifs",
+                    created_at: expect.any(String),
+                    votes: 100,
+                    article_img_url:
+                        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                });
+            });
+    });
+
+    test("400: should return an error 'Bad request' when the request body contains an invalid data type", () => {
+        const updateVote = { inc_votes: "nonsense" };
+        return request(app)
+            .patch("/api/articles/3")
+            .send(updateVote)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad request");
+            });
+    });
+
+    test("400: should return an error 'Bad request' when the article id is an invalid data type", () => {
+        const updateVote = { inc_votes: 5 };
+        return request(app)
+            .patch("/api/articles/nonsense")
+            .send(updateVote)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad request");
+            });
+    });
+    test("404: should respond with 'Not found' when the article id is a valid type, but does not exist", () => {
+        const updateVote = { inc_votes: 5 };
+        return request(app)
+            .patch("/api/articles/777")
+            .send(updateVote)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not found");
+            });
+    });
+});
