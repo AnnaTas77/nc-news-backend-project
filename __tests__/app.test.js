@@ -209,22 +209,50 @@ describe("POST /api/articles/:article_id/comments", () => {
             .expect(201)
             .then(({ body }) => {
                 const { postedComment } = body;
-                // console.log("postedComment =>>", postedComment);
 
                 expect(postedComment).toBeInstanceOf(Object);
 
                 expect(postedComment).toMatchObject({
-                    comment_id: expect.any(Number),
-                    body: expect.any(String),
-                    article_id: expect.any(Number),
-                    author: expect.any(String),
-                    votes: expect.any(Number),
+                    comment_id: 19,
+                    body: "The owls are not what they seem.",
+                    article_id: 1,
+                    author: "butter_bridge",
+                    votes: 0,
                     created_at: expect.any(String),
                 });
             });
     });
 
-    test("400: should respond with 'Bad request' when trying to post a comment with missing fields (malformed request)", () => {
+    test("201: if the provided new comment object contains unnecessary properties, they should be ignored", () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "The owls are not what they seem.",
+            votes: -1000,
+            nonsense: "banana",
+        };
+        return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                const { postedComment } = body;
+
+                expect(postedComment).toBeInstanceOf(Object);
+
+                expect(postedComment).not.toHaveProperty("nonsense");
+
+                expect(postedComment).toMatchObject({
+                    comment_id: 19,
+                    body: "The owls are not what they seem.",
+                    article_id: 1,
+                    author: "butter_bridge",
+                    votes: 0,
+                    created_at: expect.any(String),
+                });
+            });
+    });
+
+    test("400: should respond with 'Bad request' when trying to post a comment with missing fields", () => {
         const newComment = {
             username: "butter_bridge",
         };
@@ -238,7 +266,7 @@ describe("POST /api/articles/:article_id/comments", () => {
             });
     });
 
-    test("400: should respond with 'Bad request' when article_id is an invalid type", () => {
+    test("400: should respond with 'Bad request' when article id is an invalid type", () => {
         const newComment = {
             username: "butter_bridge",
             body: "The owls are not what they seem.",
@@ -249,6 +277,34 @@ describe("POST /api/articles/:article_id/comments", () => {
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe("Bad request");
+            });
+    });
+
+    test("404: should respond with 'Not found' when the article id is a valid type, but does not exist", () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "The owls are not what they seem.",
+        };
+        return request(app)
+            .post("/api/articles/0/comments")
+            .send(newComment)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not found");
+            });
+    });
+
+    test("404: should respond with 'Not found' when a non-existent username is provided", () => {
+        const newComment = {
+            username: "anna",
+            body: "The owls are not what they seem.",
+        };
+        return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not found");
             });
     });
 });

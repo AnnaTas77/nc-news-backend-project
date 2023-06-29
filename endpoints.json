@@ -64,7 +64,7 @@
     },
 
     "POST /api/articles/:article_id/comments": {
-        "description": "adds a comment for a specific article and  serves an object representing the posted comment",
+        "description": "adds a comment for a specific article and serves an object representing the posted comment",
         "queries": [],
         "exampleResponse": {
             "comment_id": 19,
