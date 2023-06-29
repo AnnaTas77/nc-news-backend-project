@@ -393,3 +393,32 @@ describe("PATCH /api/articles/:article_id", () => {
             });
     });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+    test("204: should delete a given comment by comment_id and respond with status 204 and 'No Content'", () => {
+        return request(app)
+            .delete("/api/comments/3")
+            .expect(204)
+            .then((data) => {
+                expect(data.res.statusMessage).toBe("No Content");
+            });
+    });
+
+    test("404: should respond with 'Not found' if the comment id is valid data type, but does not exist", () => {
+        return request(app)
+            .delete("/api/comments/3333")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not found");
+            });
+    });
+
+    test("400: should respond with 'Bad request' if the comment id is an invalid data type", () => {
+        return request(app)
+            .delete("/api/comments/banana")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad request");
+            });
+    });
+});
