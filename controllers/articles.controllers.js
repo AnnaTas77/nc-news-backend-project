@@ -38,8 +38,6 @@ exports.patchArticle = (req, res, next) => {
         .then((exists) => {
             if (exists) {
                 return updateArticle(article_id, updateVoteValueBy);
-            } else {
-                return Promise.reject({ status: 404, msg: "Not found" });
             }
         })
         .then((updatedArticle) => {

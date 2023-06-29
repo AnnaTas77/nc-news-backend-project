@@ -35,7 +35,6 @@ exports.selectAllArticles = () => {
 };
 
 exports.updateArticle = (articleId, updateVoteValueBy) => {
-    // const queryString = `UPDATE articles SET votes=GREATEST(0, votes+%L) WHERE article_id=%L RETURNING *;`;
     const queryString = `UPDATE articles SET votes=votes+%L WHERE article_id=%L RETURNING *;`;
 
     return db.query(format(queryString, updateVoteValueBy, articleId)).then(({ rows }) => {
