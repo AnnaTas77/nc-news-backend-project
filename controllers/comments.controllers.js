@@ -59,10 +59,8 @@ exports.deleteComment = (req, res, next) => {
     const { comment_id } = req.params;
 
     checkCommentIdExists(comment_id)
-        .then((exists) => {
-            if (exists) {
-                return removeComment(comment_id);
-            }
+        .then(() => {
+            return removeComment(comment_id);
         })
         .then((deletedComment) => {
             if (deletedComment.length === 1) {
