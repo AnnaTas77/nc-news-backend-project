@@ -1,5 +1,10 @@
 const { checkArticleIdExists } = require("../models/articles.models");
-const { selectAllCommentsForArticle, insertNewComment } = require("../models/comments.models");
+const {
+    selectAllCommentsForArticle,
+    insertNewComment,
+    removeComment,
+    checkCommentIdExists,
+} = require("../models/comments.models");
 const { checkUsernameExists } = require("../models/users.models");
 
 exports.getAllCommentsForArticle = (req, res, next) => {
@@ -44,6 +49,25 @@ exports.postNewComment = (req, res, next) => {
         })
         .then((commentFromDB) => {
             res.status(201).send({ postedComment: commentFromDB });
+        })
+        .catch((err) => {
+            next(err);
+        });
+};
+
+exports.deleteComment = (req, res, next) => {
+    const { comment_id } = req.params;
+
+    checkCommentIdExists(comment_id)
+        .then(() => {
+            return removeComment(comment_id);
+        })
+        .then((deletedComment) => {
+            if (deletedComment.length === 1) {
+                res.status(204).send();
+            } else {
+                return Promise.reject({ status: 404, msg: "Not found" });
+            }
         })
         .catch((err) => {
             next(err);
