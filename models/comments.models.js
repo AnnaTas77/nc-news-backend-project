@@ -11,3 +11,14 @@ exports.selectAllCommentsForArticle = (articleId) => {
         return rows;
     });
 };
+
+exports.insertNewComment = (articleId, newComment) => {
+    const queryString = `INSERT INTO comments (body, article_id, author) 
+        VALUES %L RETURNING *;`;
+
+    const newCommentValues = [[newComment.body, articleId, newComment.username]];
+
+    return db.query(format(queryString, newCommentValues)).then((commentFromDB) => {
+        return commentFromDB.rows[0];
+    });
+};
