@@ -2,7 +2,7 @@ const express = require("express");
 const { getAllTopics } = require("./controllers/topics.controllers");
 const { handlePsqlErrors, handleCustomErrors, handleServerErrors } = require("./errors/errors");
 const { getEndpoints } = require("./controllers/endpoints.controllers");
-const { getArticleById, getAllArticles } = require("./controllers/articles.controllers");
+const { getArticleById, getAllArticles, patchArticle } = require("./controllers/articles.controllers");
 const { getAllCommentsForArticle, postNewComment } = require("./controllers/comments.controllers");
 
 const app = express();
@@ -20,6 +20,8 @@ app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id/comments", getAllCommentsForArticle);
 
 app.post("/api/articles/:article_id/comments", postNewComment);
+
+app.patch("/api/articles/:article_id", patchArticle);
 
 app.all("*", (_, res) => {
     res.status(404).send({ status: 404, msg: "Not found" });
