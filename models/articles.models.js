@@ -15,7 +15,14 @@ exports.checkArticleIdExists = (articleId) => {
 };
 
 exports.selectArticleById = (articleId) => {
-    const queryString = `SELECT author, title, article_id, body, topic, created_at, votes,article_img_url FROM articles WHERE article_id=%L;`;
+    const queryString = `SELECT articles.author, articles.title, articles.article_id, articles.body, articles.topic, articles.created_at, articles.votes, articles.article_img_url, 
+    COUNT(comments.comment_id)::int AS comment_count 
+    FROM articles 
+    LEFT JOIN comments 
+    ON articles.article_id = comments.article_id 
+    WHERE articles.article_id=%L 
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC;`;
 
     return db.query(format(queryString, articleId)).then((result) => {
         return result.rows[0];
