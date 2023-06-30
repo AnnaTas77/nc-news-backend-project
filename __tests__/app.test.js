@@ -117,13 +117,13 @@ describe("GET /api/articles", () => {
             .get("/api/articles")
             .expect(200)
             .then(({ body }) => {
-                const articlesArray = body.articles;
+                const { articles } = body;
 
-                expect(articlesArray).toBeInstanceOf(Array);
-                expect(articlesArray).toHaveLength(13);
-                expect(articlesArray).toBeSortedBy("created_at", { descending: true });
+                expect(articles).toBeInstanceOf(Array);
+                expect(articles).toHaveLength(13);
+                expect(articles).toBeSortedBy("created_at", { descending: true });
 
-                articlesArray.forEach((article) => {
+                articles.forEach((article) => {
                     expect(article).toHaveProperty("author"), expect.any(String);
                     expect(article).toHaveProperty("title"), expect.any(String);
                     expect(article).toHaveProperty("article_id"), expect.any(Number);
@@ -143,13 +143,13 @@ describe("GET /api/articles/:article_id/comments", () => {
             .get("/api/articles/1/comments")
             .expect(200)
             .then(({ body }) => {
-                const commentsArray = body.comments;
+                const { comments } = body;
 
-                expect(commentsArray).toBeInstanceOf(Array);
-                expect(commentsArray).toHaveLength(11);
-                expect(commentsArray).toBeSortedBy("created_at", { descending: true });
+                expect(comments).toBeInstanceOf(Array);
+                expect(comments).toHaveLength(11);
+                expect(comments).toBeSortedBy("created_at", { descending: true });
 
-                commentsArray.forEach((comment) => {
+                comments.forEach((comment) => {
                     expect(comment).toHaveProperty("comment_id"), expect.any(Number);
                     expect(comment).toHaveProperty("votes"), expect.any(String);
                     expect(comment).toHaveProperty("created_at"), expect.any(String);
@@ -440,5 +440,127 @@ describe("GET /api/users", () => {
                     expect(user).toHaveProperty("avatar_url"), expect.any(String);
                 });
             });
+    });
+});
+
+describe("GET /api/articles (QUERIES)", () => {
+    describe("GET /api/articles?topic=mitch", () => {
+        test("200: should respond with an array of all articles belonging to a specific topic sorted by date (default), the default order is descending", () => {
+            return request(app)
+                .get("/api/articles?topic=mitch")
+                .expect(200)
+                .then(({ body }) => {
+                    const { articles } = body;
+
+                    expect(articles).toBeInstanceOf(Array);
+                    expect(articles).toHaveLength(12);
+                    expect(articles).toBeSortedBy("created_at", { descending: true });
+
+                    articles.forEach((article) => {
+                        expect(article).toMatchObject({
+                            author: expect.any(String),
+                            title: expect.any(String),
+                            article_id: expect.any(Number),
+                            topic: "mitch",
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            article_img_url: expect.any(String),
+                            comment_count: expect.any(String),
+                        });
+                    });
+                });
+        });
+
+        test("404: should respond with 'Not found' if the provided topic value does not exist", () => {
+            return request(app)
+                .get("/api/articles?topic=nonsense")
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
+                });
+        });
+
+        test("404: should respond with 'Not found' if the provided topic value exists, but there are no articles attached to it", () => {
+            return request(app)
+                .get("/api/articles?topic=paper")
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
+                });
+        });
+    });
+
+    describe("GET /api/articles?sort_by=author", () => {
+        test("200: should respond with an array of all articles sorted by any valid column (defaults to date), the default order is descending", () => {
+            return request(app)
+                .get("/api/articles?sort_by=author")
+                .expect(200)
+                .then(({ body }) => {
+                    const { articles } = body;
+
+                    expect(articles).toBeInstanceOf(Array);
+                    expect(articles).toHaveLength(13);
+                    expect(articles).toBeSortedBy("author", { descending: true });
+
+                    articles.forEach((article) => {
+                        expect(article).toMatchObject({
+                            author: expect.any(String),
+                            title: expect.any(String),
+                            article_id: expect.any(Number),
+                            topic: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            article_img_url: expect.any(String),
+                            comment_count: expect.any(String),
+                        });
+                    });
+                });
+        });
+
+        test("400: should respond with 'Bad request' if provided with an incorrect sort_by value", () => {
+            return request(app)
+                .get("/api/articles?sort_by=nonsense")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
+    });
+
+    describe("GET /api/articles?order=asc", () => {
+        test("200: should respond with an array of all articles sorted by date in ascending order, the default order is descending", () => {
+            return request(app)
+                .get("/api/articles?order=asc")
+                .expect(200)
+                .then(({ body }) => {
+                    const { articles } = body;
+
+                    expect(articles).toBeInstanceOf(Array);
+                    expect(articles).toHaveLength(13);
+                    expect(articles).toBeSortedBy("created_at");
+
+                    articles.forEach((article) => {
+                        expect(article).toMatchObject({
+                            author: expect.any(String),
+                            title: expect.any(String),
+                            article_id: expect.any(Number),
+                            topic: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            article_img_url: expect.any(String),
+                            comment_count: expect.any(String),
+                        });
+                    });
+                });
+        });
+
+        test("400: should respond with 'Bad request' if provided with an incorrect order value", () => {
+            return request(app)
+                .get("/api/articles?order=anna")
+                .expect(400)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Bad request");
+                });
+        });
     });
 });
