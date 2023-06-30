@@ -22,8 +22,28 @@ exports.selectArticleById = (articleId) => {
     });
 };
 
-exports.selectAllArticles = (topic, sortBy = "created_at", order = "desc") => {
-    const validTopics = ["mitch", "cats", "paper"];
+exports.topicExists = (topic) => {
+    const queryString = format(`SELECT slug FROM topics WHERE slug=%L`, topic);
+    return db.query(queryString).then(({ rows }) => {
+        if (!rows.length) {
+            return Promise.reject({ status: 404, msg: "Not found" });
+        } else {
+            return true;
+        }
+    });
+};
+
+exports.selectAllArticles = (topic, sortBy, order) => {
+    if (topic) {
+        return this.topicExists(topic).then((exists) => {
+            return selectAllArticlesInternal(topic, sortBy, order);
+        });
+    } else {
+        return selectAllArticlesInternal(topic, sortBy, order);
+    }
+};
+
+const selectAllArticlesInternal = (topic, sortBy = "created_at", order = "desc") => {
     const validSortByValues = [
         "author",
         "title",
@@ -36,10 +56,6 @@ exports.selectAllArticles = (topic, sortBy = "created_at", order = "desc") => {
     ];
     const validOrderValues = ["asc", "desc"];
 
-    if (topic && !validTopics.includes(topic)) {
-        return Promise.reject({ status: 400, msg: "Bad request" });
-    }
-
     if (!validSortByValues.includes(sortBy)) {
         return Promise.reject({ status: 400, msg: "Bad request" });
     }
@@ -48,16 +64,27 @@ exports.selectAllArticles = (topic, sortBy = "created_at", order = "desc") => {
         return Promise.reject({ status: 400, msg: "Bad request" });
     }
 
-    let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `;
+    let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id=comments.article_id `;
 
     if (topic) {
-        queryString += `WHERE articles.topic='${topic}' `;
+        queryString += `WHERE articles.topic=%L `;
     }
 
-    queryString += `GROUP BY articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY articles.${sortBy} ${order.toUpperCase()};`;
+    queryString += `GROUP BY articles.article_id ORDER BY articles.%I %s;`;
 
-    return db.query(queryString).then(({ rows }) => {
-        return rows;
+    let finalQueryString;
+    if (topic) {
+        finalQueryString = format(queryString, topic, sortBy, order);
+    } else {
+        finalQueryString = format(queryString, sortBy, order);
+    }
+
+    return db.query(finalQueryString).then(({ rows }) => {
+        if (!rows.length) {
+            return Promise.reject({ status: 404, msg: "Not found" });
+        } else {
+            return rows;
+        }
     });
 };
 

@@ -471,12 +471,21 @@ describe("GET /api/articles (QUERIES)", () => {
                 });
         });
 
-        test("400: should respond with 'Bad request' if the provided topic value does not exist", () => {
+        test("404: should respond with 'Not found' if the provided topic value does not exist", () => {
             return request(app)
                 .get("/api/articles?topic=nonsense")
-                .expect(400)
+                .expect(404)
                 .then(({ body }) => {
-                    expect(body.msg).toBe("Bad request");
+                    expect(body.msg).toBe("Not found");
+                });
+        });
+
+        test("404: should respond with 'Not found' if the provided topic value exists, but there are no articles attached to it", () => {
+            return request(app)
+                .get("/api/articles?topic=paper")
+                .expect(404)
+                .then(({ body }) => {
+                    expect(body.msg).toBe("Not found");
                 });
         });
     });
