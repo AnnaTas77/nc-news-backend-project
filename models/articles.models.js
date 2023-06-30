@@ -1,3 +1,4 @@
+const { query } = require("express");
 const db = require("../db/connection");
 const format = require("pg-format");
 
@@ -21,13 +22,39 @@ exports.selectArticleById = (articleId) => {
     });
 };
 
-exports.selectAllArticles = () => {
-    const queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count
-    FROM articles
-    LEFT JOIN comments
-    ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;`;
+exports.selectAllArticles = (topic, sortBy = "created_at", order = "desc") => {
+    const validTopics = ["mitch", "cats", "paper"];
+    const validSortByValues = [
+        "author",
+        "title",
+        "article_id",
+        "topic",
+        "votes",
+        "article_img_url",
+        "comment_count",
+        "created_at",
+    ];
+    const validOrderValues = ["asc", "desc"];
+
+    if (topic && !validTopics.includes(topic)) {
+        return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+
+    if (!validSortByValues.includes(sortBy)) {
+        return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+
+    if (!validOrderValues.includes(order)) {
+        return Promise.reject({ status: 400, msg: "Bad request" });
+    }
+
+    let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `;
+
+    if (topic) {
+        queryString += `WHERE articles.topic='${topic}' `;
+    }
+
+    queryString += `GROUP BY articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url ORDER BY articles.${sortBy} ${order.toUpperCase()};`;
 
     return db.query(queryString).then(({ rows }) => {
         return rows;
