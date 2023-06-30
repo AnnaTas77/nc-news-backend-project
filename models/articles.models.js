@@ -27,15 +27,13 @@ exports.topicExists = (topic) => {
     return db.query(queryString).then(({ rows }) => {
         if (!rows.length) {
             return Promise.reject({ status: 404, msg: "Not found" });
-        } else {
-            return true;
         }
     });
 };
 
 exports.selectAllArticles = (topic, sortBy, order) => {
     if (topic) {
-        return this.topicExists(topic).then((exists) => {
+        return this.topicExists(topic).then(() => {
             return selectAllArticlesInternal(topic, sortBy, order);
         });
     } else {
