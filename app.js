@@ -6,7 +6,11 @@ const { getArticleById, getAllArticles, patchArticle } = require("./controllers/
 const { getAllCommentsForArticle, postNewComment, deleteComment } = require("./controllers/comments.controllers");
 const { getAllUsers } = require("./controllers/users.controllers");
 
+const cors = require("cors");
+
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
