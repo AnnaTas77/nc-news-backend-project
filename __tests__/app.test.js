@@ -518,6 +518,32 @@ describe("GET /api/articles (QUERIES)", () => {
                 });
         });
 
+        test("200: should respond with an array of all articles sorted by comment_count column, the default order is descending", () => {
+            return request(app)
+                .get("/api/articles?sort_by=comment_count")
+                .expect(200)
+                .then(({ body }) => {
+                    const { articles } = body;
+
+                    expect(articles).toBeInstanceOf(Array);
+                    expect(articles).toHaveLength(13);
+                    expect(articles).toBeSortedBy("comment_count", { descending: true, coerce: true });
+
+                    articles.forEach((article) => {
+                        expect(article).toMatchObject({
+                            author: expect.any(String),
+                            title: expect.any(String),
+                            article_id: expect.any(Number),
+                            topic: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            article_img_url: expect.any(String),
+                            comment_count: expect.any(String),
+                        });
+                    });
+                });
+        });
+
         test("400: should respond with 'Bad request' if provided with an incorrect sort_by value", () => {
             return request(app)
                 .get("/api/articles?sort_by=nonsense")

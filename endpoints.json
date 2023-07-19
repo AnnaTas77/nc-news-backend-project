@@ -113,7 +113,7 @@
         }
     },
 
-    "GET /api/articles/?topic=mitch": {
+    "GET /api/articles?topic=mitch": {
         "description": "serves an array of all articles belonging to a specific topic sorted by date (default), the default order is descending",
         "queries": ["topic"],
         "exampleResponse": {

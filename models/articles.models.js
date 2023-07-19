@@ -75,7 +75,7 @@ const selectAllArticlesInternal = (topic, sortBy = "created_at", order = "desc")
         queryString += `WHERE articles.topic=%L `;
     }
 
-    queryString += `GROUP BY articles.article_id ORDER BY articles.%I %s;`;
+    queryString += `GROUP BY articles.article_id ORDER BY %I %s;`;
 
     let finalQueryString;
     if (topic) {
@@ -84,13 +84,19 @@ const selectAllArticlesInternal = (topic, sortBy = "created_at", order = "desc")
         finalQueryString = format(queryString, sortBy, order);
     }
 
-    return db.query(finalQueryString).then(({ rows }) => {
-        if (!rows.length) {
-            return Promise.reject({ status: 404, msg: "Not found" });
-        } else {
-            return rows;
-        }
-    });
+    return db
+        .query(finalQueryString)
+        .then(({ rows }) => {
+            if (!rows.length) {
+                return Promise.reject({ status: 404, msg: "Not found" });
+            } else {
+                return rows;
+            }
+        })
+        .catch((error) => {
+            error.bad_query = finalQueryString;
+            throw error;
+        });
 };
 
 exports.updateArticle = (articleId, updateVoteValueBy) => {
