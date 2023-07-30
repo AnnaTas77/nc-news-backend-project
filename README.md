@@ -58,4 +58,4 @@ In order to successfully connect to the two databases locally, please make sure 
     npm test
 
 
-## Feel free to explore the API's endpoints, experiment with the functionality, and integrate it into your own projects. 😊
+### Feel free to explore the API's endpoints, experiment with the functionality, and integrate it into your own projects. 😊
