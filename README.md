@@ -1,8 +1,8 @@
-# Northcoders News API Project
+# NC News API Project
 
 ## Project Description
 
-The News API is designed to allow programmatic access to application data and is intended to mimic the functionality of real-world backend services like Reddit. Built using Node.js and interacting with a PostgreSQL (PSQL) database, this API allows users to retrieve articles, comments, topics, and user information. Additionally, it supports filtering, sorting, and updating article data, along with managing comments.
+The NC News API is designed to allow programmatic access to application data and is intended to mimic the functionality of real-world backend services like Reddit. Built using Node.js and interacting with a PostgreSQL (PSQL) database, this API allows users to retrieve articles, comments, topics, and user information. Additionally, it supports filtering, sorting, and updating article data, along with managing comments.
 
 The database used for this project is PostgreSQL (PSQL). Therefore **node-postgres** can be used to interact with the database.
 
